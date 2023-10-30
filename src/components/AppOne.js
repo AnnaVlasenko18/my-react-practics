@@ -22,13 +22,13 @@ const olendau = {
 export const App = () => {
   return (
     <div>
-      <Profile
+      <ProfileOne
         username={jacob.name}
         imgUrl={jacob.avatar}
         age={jacob.age}
         email={jacob.email}
       />
-      <Profile
+      <ProfileOne
         username={olendau.name}
         imgUrl={olendau.avatar}
         age={olendau.age}
