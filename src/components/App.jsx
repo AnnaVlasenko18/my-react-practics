@@ -1,12 +1,14 @@
-import { GiAbstract024} from 'react-icons/gi';
-import { PilotList } from './PilotList';
+import { PilotList } from './PilotsList/PilotList';
+import { GlobalStyle } from './GlobalStyle';
+import { PageTitle } from './PageTitle/PageTitle';
 import pilots from '../pilots.json';
 
 export const App = () => {
   return (
     <div>
-      <h1>Top rated pilots <GiAbstract024 size="40" /></h1>
+      <PageTitle>Top rated pilots</PageTitle>
       <PilotList pilots={pilots} />
+      <GlobalStyle />
     </div>
   );
 };
