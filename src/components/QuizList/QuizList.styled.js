@@ -1,14 +1,11 @@
 import styled from 'styled-components';
 
 export const List = styled.ul`
-  margin: 0;
-  padding: 0;
   display: flex;
-  list-style: none;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: ${props => props.theme.spacing(3)};
 `;
 
 export const ListItem = styled.li`
-  border: 1px solid blue;
-  border-radius: 8px;
+  flex-basis: ${p => `calc((100% - ${p.theme.spacing(6)}) / 3)`};
 `;
