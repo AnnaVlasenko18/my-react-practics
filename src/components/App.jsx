@@ -1,11 +1,14 @@
 import { Component } from 'react';
-import { nanoid } from 'nanoid';
+import toast, { Toaster } from 'react-hot-toast';
+// import { nanoid } from 'nanoid';
 import { QuizForm } from './QuizForm/QuizForm';
 import { QuizList } from './QuizList/QuizList';
 import { SearchBar } from './SearchBar';
 import { GlobalStyle } from './GlobalStyle';
 import { Layout } from './Layout';
-import initialQuizItems from '../quiz-items.json';
+import { fetchQuizzes } from 'api';
+import { createQuize } from 'api';
+// import { async } from 'q';
 
 const intialFilters = {
   topic: '',
@@ -14,16 +17,29 @@ const intialFilters = {
 
 export class App extends Component {
   state = {
-    quizItems: initialQuizItems,
+    quizItems: [],
+    loading: false,
+    error: false,
     filters: intialFilters,
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     const savedFilters = localStorage.getItem('quiz-filters');
     if (savedFilters !== null) {
       this.setState({
         filters: JSON.parse(savedFilters),
       });
+    }
+
+    try {
+      this.setState({ loading: true, error: false });
+      const quizzes = await fetchQuizzes();
+      toast.success('We found quizzes!');
+      this.setState({ quizItems: quizzes });
+    } catch (error) {
+      this.setState({ error: true });
+    } finally {
+      this.setState({ loading: false });
     }
   }
 
@@ -70,21 +86,24 @@ export class App extends Component {
     });
   };
 
-  addQuiz = newQuiz => {
-    const quiz = {
-      ...newQuiz,
-      id: nanoid(),
-    };
-
-    this.setState(prevState => {
-      return {
-        quizItems: [...prevState.quizItems, quiz],
-      };
-    });
+  addQuiz = async newQuiz => {
+    try {
+      this.setState({ loading: true, error: false });
+      const quiz = await createQuize(newQuiz);
+      this.setState(prevState => {
+        return {
+          quizItems: [...prevState.quizItems, quiz],
+        };
+      });
+    } catch (error) {
+      this.setState({ error: true });
+    } finally {
+      this.setState({ loading: false });
+    }
   };
 
   render() {
-    const { quizItems, filters } = this.state;
+    const { quizItems, filters, loading, error } = this.state;
 
     const visibleQuizItems = quizItems.filter(item => {
       const hasTopic = item.topic
@@ -108,9 +127,12 @@ export class App extends Component {
           onUpdateLevel={this.updateLevelFilter}
           onReset={this.resetFilters}
         />
+        {loading && <b>Loading quiz items...</b>}
+        {error && <b>Whoops! Error! Plase reload this page!</b>}
         {visibleQuizItems.length > 0 && (
           <QuizList items={visibleQuizItems} onDelete={this.deleteQuiz} />
         )}
+        <Toaster position="top-right" />
         <GlobalStyle />
       </Layout>
     );
