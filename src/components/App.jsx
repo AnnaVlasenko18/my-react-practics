@@ -8,6 +8,10 @@ import { GlobalStyle } from './GlobalStyle';
 import { Layout } from './Layout';
 import { fetchQuizzes } from 'api';
 import { createQuize } from 'api';
+import { deleteQuisById } from 'api';
+import { ErrorMassage } from './ErrorMassage';
+
+import { Bars } from 'react-loader-spinner';
 // import { async } from 'q';
 
 const intialFilters = {
@@ -77,13 +81,23 @@ export class App extends Component {
     });
   };
 
-  deleteQuiz = quizId => {
-    console.log('deleteQuiz', quizId);
-    this.setState(prevState => {
-      return {
-        quizItems: prevState.quizItems.filter(item => item.id !== quizId),
-      };
-    });
+  deleteQuiz = async quizId => {
+    try {
+      this.setState({ loading: true, error: false });
+      const deletedQuizItem = await deleteQuisById(quizId);
+      this.setState(prevState => {
+        return {
+          quizItems: prevState.quizItems.filter(
+            item => item.id !== deletedQuizItem.id
+          ),
+        };
+      });
+      toast.success('Delete quiz!');
+    } catch (error) {
+      this.setState({ error: true });
+    } finally {
+      this.setState({ loading: false });
+    }
   };
 
   addQuiz = async newQuiz => {
@@ -95,6 +109,7 @@ export class App extends Component {
           quizItems: [...prevState.quizItems, quiz],
         };
       });
+      toast.success('Add quiz!');
     } catch (error) {
       this.setState({ error: true });
     } finally {
@@ -127,8 +142,20 @@ export class App extends Component {
           onUpdateLevel={this.updateLevelFilter}
           onReset={this.resetFilters}
         />
-        {loading && <b>Loading quiz items...</b>}
-        {error && <b>Whoops! Error! Plase reload this page!</b>}
+        {loading && (
+          <Bars
+            height="80"
+            width="80"
+            color="#4fa94d"
+            ariaLabel="bars-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+          />
+        )}
+        {error && (
+          <ErrorMassage>Whoops! Error! Plase reload this page!</ErrorMassage>
+        )}
         {visibleQuizItems.length > 0 && (
           <QuizList items={visibleQuizItems} onDelete={this.deleteQuiz} />
         )}

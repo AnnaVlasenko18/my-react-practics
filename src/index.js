@@ -11,6 +11,7 @@ const theme = {
     red: 'red',
     green: 'green',
     orange: 'orange',
+    error: 'red',
   },
   radii: {
     sm: '4px',
